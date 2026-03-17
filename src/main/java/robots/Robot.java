@@ -15,10 +15,6 @@ public abstract class Robot {
 
     public abstract String getAction(String enemyName);
 
-    public String getAction() {
-        return getAction(null);
-    }
-
     public String getName() {
         return name;
     }

@@ -1,3 +1,5 @@
+package tests;
+
 import games.PrisonersDilemmaGame;
 import robots.*;
 import tournaments.RoundRobinTournament;
@@ -126,5 +128,97 @@ public class AllTests {
 
         Robot[] results = t.main();
         assertEquals(2, results.length);
+    }
+
+    @Test
+    void multipleHistoryEntries_accumulateScoreCorrectly_mixedPositions() {
+        Robot r = new CopyBot("C");
+
+        r.addHistory(new History("C","A","Cooperate","Cooperate", new int[]{3,3}));
+        r.addHistory(new History("B","C","Defect","Cooperate", new int[]{5,0}));
+
+        assertEquals(3, r.getScore()); // 3 + 0
+    }
+
+    @Test
+    void addToHistory_multipleEntries() {
+        Robot r = new CopyBot("C");
+
+        r.addToHistory("Cooperate");
+        r.addToHistory("Defect");
+
+        assertEquals(2, r.getHistory().size());  
+    }
+
+    @Test
+    void robot_getName_returnsCorrectName() {
+        Robot r = new DefectBot("TestName");
+        assertEquals("TestName", r.getName());
+}
+
+    @Test
+    void addHistory_increasesHistorySize() {
+        Robot r = new CopyBot("C");
+        assertEquals(0, r.getHistory().size());
+
+        r.addHistory(new History("C","X","Cooperate","Cooperate", new int[]{3,3}));
+
+        assertEquals(1, r.getHistory().size());
+    }
+
+    @Test
+    void addToHistory_createsHistoryEntry() {
+        Robot r = new CopyBot("C");
+
+        r.addToHistory("Cooperate");
+
+        assertEquals(1, r.getHistory().size());
+        History h = r.getHistory().get(0);
+
+        assertEquals("C", h.player1);
+        assertEquals("Cooperate", h.player1Move);
+    }
+
+    @Test
+    void getHistory_returnsSameList_referenceBehavior() {
+        Robot r = new CopyBot("C");
+
+        List<History> h1 = r.getHistory();
+        List<History> h2 = r.getHistory();
+
+        assertSame(h1, h2);
+    }
+
+    @Test
+    void getScore_countsWhenRobotIsPlayer2() {
+        Robot r = new CopyBot("C");
+
+        r.addHistory(new History("A","C","Cooperate","Defect", new int[]{0,5}));
+
+        assertEquals(5, r.getScore());
+    }
+
+    @Test
+    void getScore_emptyHistory_isZero() {
+        Robot r = new CopyBot("C");
+        assertEquals(0, r.getScore());
+    }
+
+    @Test
+    void scoreListener_runsWithoutCrash() {
+        listeners.ScoreListener s = new listeners.ScoreListener();
+
+        assertDoesNotThrow(() -> {
+            s.updateScore("A", 5, "B", 3);
+        });
+    }
+
+    @Test
+    void moveListener_runsWithoutCrash() {
+        listeners.MoveListener m = new listeners.MoveListener();
+
+        assertDoesNotThrow(() -> {
+            m.updateMove("A", "Cooperate", "B", "Defect");
+        });
     }
 }
